@@ -5,14 +5,22 @@ const IS_WATCH_MODE = process.env.IS_WATCH_MODE;
 const TARGET_ENTRIES = [
   {
     target: "node16",
-    entryPoints: ["server/server.ts"],
+    entryPoints: ["server/index.ts"],
     platform: "node",
-    outfile: "./dist/server/server.js",
+    outfile: "./dist/server/index.js",
   },
   {
     target: "es2020",
-    entryPoints: ["client/client.ts"],
-    outfile: "./dist/client/client.js",
+    entryPoints: ["client/idenx.ts"],
+    outfile: "./dist/client/index.js",
+  },
+  {
+    target: "es2017",
+    entryPoints: ["web/main.tsx"],
+    outfile: "./dist/web/main.js",
+    loader: { html: "copy" },
+    assetNames: "[name]",
+    sourcemap: true,
   },
 ];
 
@@ -59,3 +67,4 @@ const buildBundle = async () => {
 };
 
 buildBundle().catch(() => process.exit(1));
+
