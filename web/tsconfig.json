@@ -9,6 +9,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "types": ["@citizenfx/server", "@types/node"],
+    "skipLibCheck": true,
     "lib": ["dom", "dom.iterable", "esnext"]
   },
   "include": ["./**/*"],

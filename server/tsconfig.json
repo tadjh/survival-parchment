@@ -6,8 +6,10 @@
     "allowSyntheticDefaultImports": true,
     "module": "CommonJS",
     "types": ["@citizenfx/server", "@types/node"],
+    "skipLibCheck": true,
     "lib": ["ES2020"]
   },
   "include": ["./**/*"],
   "exclude": ["**/node_modules", "**/__tests__/*"]
 }
+

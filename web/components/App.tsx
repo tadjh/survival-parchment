@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "./App.css";
 import { debugData } from "../utils/debugData";
 import { fetchNui } from "../utils/fetchNui";
 

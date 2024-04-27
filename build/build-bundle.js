@@ -11,14 +11,14 @@ const TARGET_ENTRIES = [
   },
   {
     target: "es2020",
-    entryPoints: ["client/idenx.ts"],
+    entryPoints: ["client/index.ts"],
     outfile: "./dist/client/index.js",
   },
   {
     target: "es2017",
-    entryPoints: ["web/main.tsx"],
-    outfile: "./dist/web/main.js",
-    loader: { html: "copy" },
+    entryPoints: ["web/index.tsx", "web/index.html", "web/index.css"],
+    outdir: "./dist/web/",
+    loader: { ".html": "copy", ".css": "copy" },
     assetNames: "[name]",
     sourcemap: true,
   },

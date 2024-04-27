@@ -1,6 +1,6 @@
 fx_version 'cerulean'
-name 'FiveM TypeScript Boilerplate'
-author 'Project Error'
+name 'survival-parchment'
+author 'Tadjh Brooks'
 game 'gta5'
 
 ui_page 'dist/web/index.html'
