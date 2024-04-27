@@ -13,7 +13,7 @@ interface DebugEvent<T = unknown> {
  * @param timer - How long until it should trigger (ms)
  */
 export const debugData = <P>(events: DebugEvent<P>[], timer = 1000): void => {
-  if (process.env.MODE === "development" && isEnvBrowser()) {
+  if (isEnvBrowser()) {
     for (const event of events) {
       setTimeout(() => {
         window.dispatchEvent(

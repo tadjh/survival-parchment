@@ -1,4 +1,7 @@
 const esbuild = require("esbuild");
+const postCssPlugin = require("@deanc/esbuild-plugin-postcss");
+const tailwindcss = require("tailwindcss");
+const autoprefixer = require("autoprefixer");
 
 const IS_WATCH_MODE = process.env.IS_WATCH_MODE;
 
@@ -16,11 +19,16 @@ const TARGET_ENTRIES = [
   },
   {
     target: "es2017",
-    entryPoints: ["web/index.tsx", "web/index.html", "web/index.css"],
+    entryPoints: ["web/index.tsx", "web/index.html", "web/style.css"],
     outdir: "./dist/web/",
-    loader: { ".html": "copy", ".css": "copy" },
+    loader: { ".html": "copy" },
     assetNames: "[name]",
     sourcemap: true,
+    plugins: [
+      postCssPlugin({
+        plugins: [tailwindcss, autoprefixer],
+      }),
+    ],
   },
 ];
 
