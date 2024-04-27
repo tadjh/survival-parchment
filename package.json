@@ -25,6 +25,13 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
+  },
+  "engines": {
+    "node": ">=16.9.1"
+  },
+  "resolutions": {
+    "path-scurry": "1.6.3",
+    "lru-cache": "7.18.0"
   }
 }
 
