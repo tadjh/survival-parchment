@@ -12,3 +12,5 @@ files {
 	'dist/web/index.html',
 	'dist/web/**/*',
 }
+
+dependencies { 'immersive-animations' }
