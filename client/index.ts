@@ -1,4 +1,4 @@
-import { CURRENT_RESOURCE_NAME, SURVIVAL_PARCHMENT_VISIBILITY } from "./config";
+import { CURRENT_RESOURCE_NAME } from "./config";
 import { addEmote } from "./lib/immersive-animations";
 import {
   AnimFlags,
@@ -8,20 +8,18 @@ import {
 import { NUICallback } from "./types";
 import { SendReactMessage } from "./utils";
 
-RegisterCommand(
-  `${CURRENT_RESOURCE_NAME}:show`,
-  function () {
-    SetNuiFocus(true, true);
-    SendReactMessage({ action: "setVisible", data: true });
-  },
-  false
-);
+function show() {
+  SetNuiFocus(true, true);
+  SendReactMessage({ action: "setIsVisible", payload: true });
+}
+
+RegisterCommand(`${CURRENT_RESOURCE_NAME}:show`, show, false);
 
 RegisterNuiCallbackType("hideFrame");
 
 on("__cfx_nui:hideFrame", (data: unknown, cb: NUICallback) => {
   SetNuiFocus(false, false);
-  SendReactMessage({ action: "setVisible", data: false });
+  SendReactMessage({ action: "setIsVisible", payload: false });
   cb({});
 });
 
@@ -51,7 +49,7 @@ const parchmentEmotes: { [key: string]: AnimOptions } = {
   },
 };
 
-// Register torch emotes with animation resource
+// Register parchment emotes with animation resource
 
 for (const key in parchmentEmotes) {
   if (Object.prototype.hasOwnProperty.call(parchmentEmotes, key)) {
@@ -59,3 +57,8 @@ for (const key in parchmentEmotes) {
   }
 }
 
+setTick(() => {
+  if (IsControlJustPressed(0, 172)) {
+    show();
+  }
+});

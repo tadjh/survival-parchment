@@ -18,7 +18,7 @@ export async function fetchNui<T = unknown>(
   mockData?: T
 ): Promise<T> {
   const options = {
-    method: "post",
+    method: "POST",
     headers: {
       "Content-Type": "application/json; charset=UTF-8",
     },

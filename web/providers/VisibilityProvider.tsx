@@ -1,64 +1,67 @@
-import React, {
-  Context,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNuiEvent } from "../hooks/useNUIEvent";
 import { fetchNui } from "../utils/fetchNui";
 import { isEnvBrowser } from "../utils/misc";
 
-const VisibilityCtx = createContext<VisibilityProviderValue | null>(null);
-
-interface VisibilityProviderValue {
-  setVisible: (visible: boolean) => void;
-  visible: boolean;
+interface VisibilityProviderProps {
+  isVisible: boolean;
+  setIsVisible: (visible: boolean) => void;
 }
 
-// This should be mounted at the top level of your application, it is currently set to
-// apply a CSS visibility value. If this is non-performant, this should be customized.
+const VisibilityContext = createContext<VisibilityProviderProps | null>(null);
+
 export const VisibilityProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [visible, setVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
-  useNuiEvent<boolean>("setVisible", setVisible);
+  useNuiEvent<boolean>("setIsVisible", setIsVisible);
 
   // Handle pressing escape/backspace
   useEffect(() => {
     // Only attach listener when we are visible
-    if (!visible) return;
+    if (!isVisible) return;
 
-    const keyHandler = (e: KeyboardEvent) => {
-      if (["Backspace", "Escape"].includes(e.code)) {
-        if (!isEnvBrowser()) fetchNui("hideFrame");
-        else setVisible(!visible);
+    function handleKeyDown(event: KeyboardEvent) {
+      if (["Escape"].includes(event.code)) {
+        if (isEnvBrowser()) {
+          return setIsVisible(false);
+        }
+
+        // Gives mouse focus back to game, then dispates setIsVisible false event.
+        return fetchNui("hideFrame");
       }
-    };
+    }
 
-    window.addEventListener("keydown", keyHandler);
+    window.addEventListener("keydown", handleKeyDown);
 
-    return () => window.removeEventListener("keydown", keyHandler);
-  }, [visible]);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isVisible]);
 
   return (
-    <VisibilityCtx.Provider
+    <VisibilityContext.Provider
       value={{
-        visible,
-        setVisible,
+        isVisible,
+        setIsVisible,
       }}
     >
       <div
-        style={{ visibility: visible ? "visible" : "hidden", height: "100%" }}
+        style={{ visibility: isVisible ? "visible" : "hidden", height: "100%" }}
       >
         {children}
       </div>
-    </VisibilityCtx.Provider>
+    </VisibilityContext.Provider>
   );
 };
 
-export const useVisibility = () =>
-  useContext<VisibilityProviderValue>(
-    VisibilityCtx as Context<VisibilityProviderValue>
-  );
+export function useVisibility() {
+  const currentVisibilityContext = useContext(VisibilityContext);
+
+  if (!currentVisibilityContext) {
+    throw new Error(
+      "useVisibility has to be used within <VisibilityContext.Provider>"
+    );
+  }
+
+  return currentVisibilityContext;
+}

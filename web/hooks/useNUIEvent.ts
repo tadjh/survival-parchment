@@ -1,9 +1,9 @@
 import { MutableRefObject, useEffect, useRef } from "react";
 import { noop } from "../utils/misc";
 
-interface NuiMessageData<T = unknown> {
+export interface NuiMessage<T = unknown> {
   action: string;
-  data: T;
+  payload: T;
 }
 
 type NuiHandlerSignature<T> = (data: T) => void;
@@ -20,10 +20,10 @@ type NuiHandlerSignature<T> = (data: T) => void;
  *
  **/
 
-export const useNuiEvent = <T = unknown>(
+export function useNuiEvent<T = unknown>(
   action: string,
-  handler: (data: T) => void
-) => {
+  handler: NuiHandlerSignature<T>
+) {
   const savedHandler: MutableRefObject<NuiHandlerSignature<T>> = useRef(noop);
 
   // Make sure we handle for a reactive handler
@@ -32,18 +32,17 @@ export const useNuiEvent = <T = unknown>(
   }, [handler]);
 
   useEffect(() => {
-    const eventListener = (event: MessageEvent<NuiMessageData<T>>) => {
-      const { action: eventAction, data } = event.data;
+    function handleMessage(event: MessageEvent<NuiMessage<T>>) {
+      // TODO Doesn't savedHandler.current always exists since line 27 initializes with a function?
+      if (!savedHandler.current) return;
 
-      if (savedHandler.current) {
-        if (eventAction === action) {
-          savedHandler.current(data);
-        }
+      if (event.data.action === action) {
+        savedHandler.current(event.data.payload);
       }
-    };
+    }
 
-    window.addEventListener("message", eventListener);
+    window.addEventListener("message", handleMessage);
     // Remove Event Listener on component cleanup
-    return () => window.removeEventListener("message", eventListener);
+    return () => window.removeEventListener("message", handleMessage);
   }, [action]);
-};
+}

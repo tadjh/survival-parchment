@@ -9,6 +9,6 @@ export function getArg(args: Args) {
   return arg1;
 }
 
-export function SendReactMessage({ action, data }: NUIMessage) {
-  SendNUIMessage({ action, data });
+export function SendReactMessage(nuiMessage: NUIMessage) {
+  return SendNUIMessage(nuiMessage);
 }
