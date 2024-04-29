@@ -10,6 +10,7 @@ import {
   fontConfig,
   imageConfig,
 } from "../config";
+import { fetchNui } from "../utils/fetchNui";
 
 type ErrorType =
   | "ERROR_NO_TEXT_ENTERED"
@@ -94,23 +95,26 @@ export default function Form() {
     if (formData.font === "") return;
 
     try {
-      const font = fontConfig[formData.font];
       const response = await fetch(IMAGE_API_URL, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          font: font.name,
+          font: fontConfig[formData.font].name,
           text: formData.text,
-          font_colour: imageConfig.fontColor,
-          font_size: font.size,
-          offset_x: imageConfig.offsetX + font.offsetX,
-          offset_y: imageConfig.offsetY + font.offsetY,
+          fontColour: imageConfig.fontColor,
+          fontSize: fontConfig[formData.font].size,
           width: imageConfig.width,
           height: imageConfig.height,
+          offsetX: imageConfig.offsetX + fontConfig[formData.font].offsetX,
+          offsetY: imageConfig.offsetY + fontConfig[formData.font].offsetY,
         }),
       });
-      const data = await response.json();
-      console.log(data);
-    } catch {
+      const text = await response.text();
+      console.log(text);
+
+      return fetchNui("sendTexture", text);
+    } catch (error) {
+      console.error(error);
       throw new Error("Fetch request failed...");
     }
   }
@@ -203,7 +207,7 @@ export default function Form() {
                   </Select.Label>
                   <Select.Separator className="m-1 h-[1px] bg-teal-500/50" />
                   <SelectItem
-                    value="coverdByYourGrace"
+                    value="coveredByYourGrace"
                     className="indent-[-9999px]"
                   >
                     <div

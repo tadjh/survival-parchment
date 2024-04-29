@@ -1,5 +1,12 @@
-import { CURRENT_RESOURCE_NAME } from "./config";
-import { addEmote } from "./lib/immersive-animations";
+import {
+  CURRENT_RESOURCE_NAME,
+  DEFAULT_TEXTURE_DICTIONARY,
+  DEFAULT_TEXTURE_NAME,
+  PARCHMENT_TEXTURE_DIMENSIONS,
+  RUNTIME_TEXTURE_DICTIONARY,
+  RUNTIME_TEXTURE_NAME,
+} from "./config";
+import { addEmote, startAnim } from "./lib/immersive-animations";
 import {
   AnimFlags,
   AnimOptions,
@@ -7,6 +14,11 @@ import {
 } from "./lib/immersive-animations/types";
 import { NUICallback } from "./types";
 import { SendReactMessage } from "./utils";
+
+let dictHandle = 0;
+let textureHandle = 0;
+let duiObject = 0;
+let duiHandle = "";
 
 function show() {
   SetNuiFocus(true, true);
@@ -23,14 +35,93 @@ on("__cfx_nui:hideFrame", (data: unknown, cb: NUICallback) => {
   cb({});
 });
 
-RegisterNuiCallbackType("getClientData");
+RegisterNuiCallbackType("sendTexture");
 
-on("__cfx_nui:getClientData", (data: unknown, cb: NUICallback) => {
-  console.log("Data sent by React", JSON.stringify(data));
+on("__cfx_nui:sendTexture", (data: string, cb: NUICallback) => {
+  SetNuiFocus(false, false);
+  SendReactMessage({ action: "setIsVisible", payload: false });
 
-  const curCoords = GetEntityCoords(PlayerPedId(), true);
+  if (!dictHandle) {
+    dictHandle = CreateRuntimeTxd(RUNTIME_TEXTURE_DICTIONARY);
+  }
 
-  cb({ x: curCoords[0], y: curCoords[1], z: curCoords[2] });
+  data = "https://placehold.co/512x512.png";
+
+  // if (!textureHandle) {
+  //   textureHandle = CreateRuntimeTexture(
+  //     dictHandle,
+  //     RUNTIME_TEXTURE_NAME,
+  //     PARCHMENT_TEXTURE_DIMENSIONS,
+  //     PARCHMENT_TEXTURE_DIMENSIONS
+  //   );
+
+  if (!duiHandle) {
+    duiObject = CreateDui(
+      data,
+      PARCHMENT_TEXTURE_DIMENSIONS,
+      PARCHMENT_TEXTURE_DIMENSIONS
+    );
+    duiHandle = GetDuiHandle(duiObject);
+  } else {
+    SetDuiUrl(duiObject, data);
+  }
+
+  if (!textureHandle) {
+    textureHandle = CreateRuntimeTextureFromDuiHandle(
+      dictHandle,
+      DEFAULT_TEXTURE_NAME,
+      duiHandle
+    );
+  }
+
+  // if (!textureHandle) {
+  //   textureHandle = CreateRuntimeTextureFromImage(
+  //     dictHandle,
+  //     RUNTIME_TEXTURE_NAME,
+  //     data
+  //   );
+
+  //   console.log("texture", textureHandle);
+  // } else {
+  //   const result = SetRuntimeTextureImage(textureHandle, data);
+  // }
+
+  console.log(
+    "w",
+    GetRuntimeTextureWidth(textureHandle),
+    "h",
+    GetRuntimeTextureHeight(textureHandle)
+  );
+
+  // CommitRuntimeTexture(textureHandle);
+
+  const startTime = Date.now();
+  const tick = setTick(() => {
+    const elapsedTime = Date.now() - startTime;
+    if (HasStreamedTextureDictLoaded(RUNTIME_TEXTURE_DICTIONARY)) {
+      console.log("Runtime dict loaded!");
+
+      AddReplaceTexture(
+        DEFAULT_TEXTURE_DICTIONARY,
+        DEFAULT_TEXTURE_NAME,
+        RUNTIME_TEXTURE_DICTIONARY,
+        DEFAULT_TEXTURE_NAME
+      );
+
+      clearTick(tick);
+    }
+    if (elapsedTime > 20000) {
+      console.log("Gave up after 20 seconds!");
+
+      return clearTick(tick);
+    }
+  });
+
+  // startAnim(parchmentEmotes.parchment);
+
+  // TODO RemoveReplaceTexture
+
+  cb({});
 });
 
 const parchmentEmotes: { [key: string]: AnimOptions } = {
