@@ -1,7 +1,4 @@
 const esbuild = require("esbuild");
-const postCssPlugin = require("@deanc/esbuild-plugin-postcss");
-const tailwindcss = require("tailwindcss");
-const autoprefixer = require("autoprefixer");
 const { dotenvRun } = require("@dotenv-run/esbuild");
 
 const IS_WATCH_MODE = process.env.IS_WATCH_MODE;
@@ -19,10 +16,10 @@ const TARGET_ENTRIES = [
     outfile: "./dist/client/index.js",
   },
   {
+    namespace: "web",
     target: "es2017",
     entryPoints: [
       "web/index.tsx",
-      "web/style.css",
       "web/index.html",
       "web/public/img/parchment_fonts_512x512.png",
     ],
@@ -37,9 +34,6 @@ const TARGET_ENTRIES = [
         root: "../..",
         prefix: "SP_",
       }),
-      postCssPlugin({
-        plugins: [tailwindcss, autoprefixer],
-      }),
     ],
   },
 ];
@@ -50,33 +44,54 @@ const buildBundle = async () => {
       logLevel: "info",
       bundle: true,
       charset: "utf8",
-      minifyWhitespace: true,
+      minifyWhitespace: !IS_WATCH_MODE,
       absWorkingDir: process.cwd(),
+      // plugins: [
+      // {
+      //   name: "onRebuild",
+      //   setup(build) {
+      //     let count = 0;
+      //     build.onEnd((result) => {
+      //       console.log(result);
+      //       // if (count++ === 0)
+      //       //   return console.log(
+      //       //     `[ESBuild Watch] (${outputFiles[0].path}) Files first build`
+      //       //   );
+
+      //       // return console.log(
+      //       //   `[ESBuild Watch] (${outputFiles[0].path}) Sucessfully rebuilt bundle`
+      //       // );
+      //     });
+      //   },
+      // },
+      // ],
     };
 
     for (const targetOpts of TARGET_ENTRIES) {
-      const mergedOpts = { ...baseOptions, ...targetOpts };
+      const { namespace, ...mergedOpts } = { ...baseOptions, ...targetOpts };
 
       if (IS_WATCH_MODE) {
-        mergedOpts.watch = {
-          onRebuild(error) {
-            if (error)
-              console.error(
-                `[ESBuild Watch] (${targetOpts.entryPoints[0]}) Failed to rebuild bundle`
-              );
-            else
-              console.log(
-                `[ESBuild Watch] (${targetOpts.entryPoints[0]}) Sucessfully rebuilt bundle`
-              );
-          },
-        };
-      }
+        let ctx = await esbuild.context(mergedOpts);
 
-      const { errors } = await esbuild.build(mergedOpts);
+        await ctx.watch();
 
-      if (errors.length) {
-        console.error(`[ESBuild] Bundle failed with ${errors.length} errors`);
-        process.exit(1);
+        if (targetOpts.namespace === "web") {
+          await ctx.serve({
+            servedir: "dist/web",
+            port: Number(process.env.SP_WATCHMODE_PORT || 5000),
+          });
+        }
+      } else {
+        const { errors } = await esbuild.build(mergedOpts);
+
+        if (errors.length) {
+          console.error(`[ESBuild] Bundle failed with ${errors.length} errors`);
+          for (let i = 0; i < errors.length; i++) {
+            console.error(errors[i]);
+          }
+
+          process.exit(1);
+        }
       }
     }
   } catch (e) {

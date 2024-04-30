@@ -8,12 +8,14 @@ export const imageConfig: {
   offsetX: number;
   offsetY: number;
   fontColor: string;
+  anchor: "ma" | "mt" | "mm" | "ms" | "mb" | "md" | "ls" | "ms" | "rs";
 } = {
   height: 512,
   width: 512,
   offsetX: 256,
   offsetY: 256,
-  fontColor: "#252937",
+  fontColor: "252937",
+  anchor: "mm",
 };
 
 export const fontConfig: {

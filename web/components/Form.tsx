@@ -94,25 +94,43 @@ export default function Form() {
 
     if (formData.font === "") return;
 
-    try {
-      const response = await fetch(IMAGE_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          font: fontConfig[formData.font].name,
-          text: formData.text,
-          fontColour: imageConfig.fontColor,
-          fontSize: fontConfig[formData.font].size,
-          width: imageConfig.width,
-          height: imageConfig.height,
-          offsetX: imageConfig.offsetX + fontConfig[formData.font].offsetX,
-          offsetY: imageConfig.offsetY + fontConfig[formData.font].offsetY,
-        }),
-      });
-      const text = await response.text();
-      console.log(text);
+    const queryArray = [
+      IMAGE_API_URL,
+      `?font=${encodeURIComponent(fontConfig[formData.font].name)}`,
+      `&text=${encodeURIComponent(formData.text)}`,
+      `&font_color=${imageConfig.fontColor}`,
+      `&font_size=${fontConfig[formData.font].size}`,
+      `&width=${imageConfig.width}`,
+      `&height=${imageConfig.height}`,
+      `&offset_x=${imageConfig.offsetX + fontConfig[formData.font].offsetX}`,
+      `&offset_y=${imageConfig.offsetY + fontConfig[formData.font].offsetY}`,
+      `&anchor=${imageConfig.anchor}`,
+    ];
 
-      return fetchNui("sendTexture", text);
+    const query = queryArray.join("");
+    try {
+      const response = await fetch(query, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const blob = await response.blob();
+      const reader = new FileReader();
+
+      function onLoad() {
+        if (reader.result) {
+          fetchNui("sendTexture", reader.result);
+        }
+        reader.removeEventListener("load", onLoad);
+      }
+
+      reader.addEventListener("load", onLoad);
+
+      reader.readAsDataURL(blob);
+
+      return setTimeout(() => {
+        reader.abort();
+      }, 20000);
     } catch (error) {
       console.error(error);
       throw new Error("Fetch request failed...");
@@ -197,7 +215,7 @@ export default function Form() {
           </Select.Trigger>
           <Select.Portal>
             <Select.Content className="-translate-y-1 translate-x-2 overflow-hidden rounded-lg bg-gradient-to-b from-cyan-800 to-cyan-900 py-3 shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)]">
-              <Select.ScrollUpButton className="flex h-6 cursor-default items-center justify-center bg-teal-700/75 text-teal-300 transition-colors hover:bg-teal-700 hover:text-white">
+              <Select.ScrollUpButton className="flex h-7 cursor-default items-center justify-center bg-teal-700/75 text-teal-300 transition-colors hover:bg-teal-700 hover:text-white">
                 <FaChevronUp />
               </Select.ScrollUpButton>
               <Select.Viewport className="p-1">
@@ -212,20 +230,20 @@ export default function Form() {
                   >
                     <div
                       style={{
-                        background:
-                          "url(./public/img/parchment_fonts_512x512.png) 0% 0% / 44% no-repeat",
+                        backgroundImage:
+                          "url(./public/img/parchment_fonts_512x512.png)",
                       }}
-                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden"
+                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden bg-[length:44%] bg-[0%_0%] bg-no-repeat"
                     />
                     Covered By Your Grace
                   </SelectItem>
                   <SelectItem value="indieFlower" className="indent-[-9999px]">
                     <div
                       style={{
-                        background:
-                          "url(./public/img/parchment_fonts_512x512.png) 0% 15% / 44% no-repeat",
+                        backgroundImage:
+                          "url(./public/img/parchment_fonts_512x512.png)",
                       }}
-                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden"
+                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden bg-[length:44%] bg-[0%_15%] bg-no-repeat"
                     />
                     Indie Flower
                   </SelectItem>
@@ -235,10 +253,10 @@ export default function Form() {
                   >
                     <div
                       style={{
-                        background:
-                          "url(./public/img/parchment_fonts_512x512.png) 0% 33% / 44% no-repeat",
+                        backgroundImage:
+                          "url(./public/img/parchment_fonts_512x512.png)",
                       }}
-                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden"
+                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden bg-[length:44%] bg-[0%_33%] bg-no-repeat"
                     />
                     Just Me Again Down Here
                   </SelectItem>
@@ -248,30 +266,30 @@ export default function Form() {
                   >
                     <div
                       style={{
-                        background:
-                          "url(./public/img/parchment_fonts_512x512.png) 0% 50% / 44% no-repeat",
+                        backgroundImage:
+                          "url(./public/img/parchment_fonts_512x512.png)",
                       }}
-                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden"
+                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden bg-[length:44%] bg-[0%_50%] bg-no-repeat"
                     />
                     Permanent Marker
                   </SelectItem>
                   <SelectItem value="reenieBeanie" className="indent-[-9999px]">
                     <div
                       style={{
-                        background:
-                          "url(./public/img/parchment_fonts_512x512.png) 0% 66.5% / 44% no-repeat",
+                        backgroundImage:
+                          "url(./public/img/parchment_fonts_512x512.png)",
                       }}
-                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden"
+                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden bg-[length:44%] bg-[0%_66.5%] bg-no-repeat"
                     />
                     Reenie Beanie
                   </SelectItem>
                   <SelectItem value="rockSalt" className="indent-[-9999px]">
                     <div
                       style={{
-                        background:
-                          "url(./public/img/parchment_fonts_512x512.png) 0% 83% / 44% no-repeat",
+                        backgroundImage:
+                          "url(./public/img/parchment_fonts_512x512.png)",
                       }}
-                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden"
+                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden bg-[length:44%] bg-[0%_83%] bg-no-repeat"
                     />
                     Rock Salt
                   </SelectItem>
@@ -281,16 +299,16 @@ export default function Form() {
                   >
                     <div
                       style={{
-                        background:
-                          "url(./public/img/parchment_fonts_512x512.png) 0% 100% / 44% no-repeat",
+                        backgroundImage:
+                          "url(./public/img/parchment_fonts_512x512.png)",
                       }}
-                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden"
+                      className="absolute left-6 top-0 my-1 h-7 w-11/12 overflow-hidden bg-[length:44%] bg-[0%_100%] bg-no-repeat"
                     />
                     Watler Turncoat
                   </SelectItem>
                 </Select.Group>
               </Select.Viewport>
-              <Select.ScrollDownButton className="flex h-6 cursor-default items-center justify-center bg-teal-700/75 text-teal-300 transition-colors hover:bg-teal-700 hover:text-white">
+              <Select.ScrollDownButton className="flex h-7 cursor-default items-center justify-center bg-teal-700/75 text-teal-300 transition-colors hover:bg-teal-700 hover:text-white">
                 <FaChevronDown />
               </Select.ScrollDownButton>
             </Select.Content>
