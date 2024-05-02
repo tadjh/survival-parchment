@@ -11,6 +11,9 @@ client_script 'dist/client/**/*.js'
 files {
 	'dist/web/index.html',
 	'dist/web/**/*',
+	'stream/prop_survival_parchment.ytyp'
 }
+
+data_file 'DLC_ITYP_REQUEST' 'stream/prop_survival_parchment.ytyp'
 
 dependencies { 'immersive-animations' }
