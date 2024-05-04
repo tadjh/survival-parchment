@@ -5,17 +5,35 @@ export type Model = string | number;
 export type Vector3 = { x: number; y: number; z: number };
 
 export interface AnimHandles {
-  prop: number;
-  particle: number;
+  // animName: string;
+  propHandle: number;
+  propModel: Model;
+  particleHandle: number;
+  particleName: string;
+  propTwoHandle: number;
+  propTwoModel: Model;
+  particleTwoHandle: number;
+  particleTwoName: string;
 }
+
+export type PropHandles = Pick<
+  AnimHandles,
+  "propHandle" | "propModel" | "particleHandle" | "particleName"
+>;
+
+export type ParticleHandles = Pick<
+  AnimHandles,
+  "particleHandle" | "particleName"
+>;
 
 export interface PtfxOptions {
   asset: string;
-  particle: string;
+  name: string;
   offset: { x: number; y: number; z: number };
   rotation: { x: number; y: number; z: number };
   scale: number;
-  lock: { x: boolean; y: boolean; z: boolean };
+  invert: { x: boolean; y: boolean; z: boolean };
+  forceRespawn?: boolean;
 }
 
 export interface PropOptions {
@@ -25,6 +43,7 @@ export interface PropOptions {
   rot: Vector3;
   hasCollision?: boolean;
   particle?: PtfxOptions;
+  debug?: boolean;
 }
 
 export interface AnimData {
@@ -34,7 +53,7 @@ export interface AnimData {
   blendOutSpeed?: number;
   duration?: number;
   playbackRate?: number;
-  lock?: { x: boolean; y: boolean; z: boolean };
+  invert?: { x: boolean; y: boolean; z: boolean };
 }
 
 type AnimTypes =
@@ -53,6 +72,7 @@ type AnimTypes =
 export type AnimOptions = {
   dictionary: string;
   prop?: PropOptions;
+  propTwo?: PropOptions;
 } & AnimTypes;
 
 export enum RotationOrders {

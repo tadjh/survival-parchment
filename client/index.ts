@@ -64,6 +64,26 @@ on("__cfx_nui:sendTexture", async (url: string, cb: NUICallback) => {
 
 const parchmentEmotes: { [key: string]: AnimOptions } = {
   parchment: {
+    dictionary: "missheistdockssetup1clipboard@base",
+    name: "base",
+    type: "single",
+    flag:
+      AnimFlags.AF_LOOPING + AnimFlags.AF_UPPERBODY + AnimFlags.AF_SECONDARY,
+    prop: {
+      model: "prop_survival_parchment",
+      bone: PedBoneId.SKEL_L_Hand,
+      pos: { x: 0.1, y: 0.02, z: 0.056 },
+      rot: { x: 85.5, y: -2.5, z: 0.0 },
+      debug: true,
+    },
+    propTwo: {
+      model: "prop_cs_marker_01",
+      bone: PedBoneId.SKEL_R_Hand,
+      pos: { x: 0.129, y: 0.048, z: -0.011 },
+      rot: { x: -120.0, y: 0.0, z: 0.0 },
+    },
+  },
+  parchment2: {
     dictionary: "amb@world_human_bum_freeway@male@base",
     name: "base",
     type: "single",
@@ -74,6 +94,12 @@ const parchmentEmotes: { [key: string]: AnimOptions } = {
       bone: PedBoneId.SKEL_R_Finger20,
       pos: { x: 0.21, y: 0.16, z: 0.0 },
       rot: { x: 5.0, y: 5.0, z: 41.0 },
+    },
+    propTwo: {
+      model: "prop_cs_marker_01",
+      bone: PedBoneId.SKEL_R_Hand,
+      pos: { x: 0.129, y: 0.048, z: -0.011 },
+      rot: { x: -120.0, y: 0.0, z: 0.0 },
     },
   },
 };
