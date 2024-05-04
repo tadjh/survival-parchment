@@ -9,9 +9,9 @@
     "build": "npm run clearbuild && npm run typecheck && npm-run-all --parallel build:*",
     "clearbuild": "rimraf ./dist",
     "typecheck": "tsc --noEmit -p client/tsconfig.json && tsc --noEmit -p server/tsconfig.json",
-    "watch:esbuild": "cross-env IS_WATCH_MODE=1 NODE_ENV=development node build/build-bundle.js",
-    "watch:tailwind": "npx tailwindcss -i ./web/style.css -o ./dist/web/style.css --watch",
-    "watch": "npm run clearbuild && npm-run-all --parallel watch:*"
+    "start:esbuild": "cross-env IS_WATCH_MODE=1 NODE_ENV=development node build/build-bundle.js",
+    "start:tailwind": "npx tailwindcss -i ./web/style.css -o ./dist/web/style.css --watch",
+    "start": "npm run clearbuild && npm-run-all --parallel start:*"
   },
   "author": "Tadjh Brooks",
   "license": "MIT",
@@ -22,6 +22,7 @@
     "@types/node": "^20.12.7",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",
+    "@types/webfontloader": "^1.6.38",
     "autoprefixer": "^10.4.19",
     "cross-env": "^7.0.3",
     "esbuild": "0.19.11",
@@ -40,7 +41,8 @@
     "react-dom": "^18.3.1",
     "react-error-boundary": "^4.0.13",
     "react-icons": "^5.1.0",
-    "tailwind-merge": "^2.3.0"
+    "tailwind-merge": "^2.3.0",
+    "webfontloader": "^1.6.28"
   },
   "engines": {
     "node": ">=16.9.1",

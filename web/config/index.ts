@@ -1,3 +1,5 @@
+import { Anchor, FontName, FontSlug } from "../types";
+
 export const MAX_STRING_LENGTH = 70;
 
 export const IMAGE_API_URL = process.env.SP_IMAGE_API_URL || "";
@@ -8,7 +10,7 @@ export const imageConfig: {
   offsetX: number;
   offsetY: number;
   fontColor: string;
-  anchor: "ma" | "mt" | "mm" | "ms" | "mb" | "md" | "ls" | "ms" | "rs";
+  anchor: Anchor;
 } = {
   height: 512,
   width: 512,
@@ -19,8 +21,8 @@ export const imageConfig: {
 };
 
 export const fontConfig: {
-  [key in FontType]: {
-    name: string;
+  [key in FontSlug]: {
+    name: FontName;
     size: number;
     offsetX: number;
     offsetY: number;
@@ -28,38 +30,38 @@ export const fontConfig: {
 } = {
   coveredByYourGrace: {
     name: "Covered By Your Grace",
-    size: 100,
+    size: 82,
     offsetX: 0,
     offsetY: 4,
   },
   indieFlower: {
     name: "Indie Flower",
-    size: 86,
+    size: 68,
     offsetX: 0,
     offsetY: 8,
   },
   justMeAgainDownHere: {
     name: "Just Me Again Down Here",
-    size: 116,
+    size: 82,
     offsetX: 0,
-    offsetY: 12,
+    offsetY: 4,
   },
   permanentMarker: {
     name: "Permanent Marker",
-    size: 82,
+    size: 68,
     offsetX: 0,
     offsetY: 0,
   },
   reenieBeanie: {
     name: "Reenie Beanie",
-    size: 100,
+    size: 84,
     offsetX: 0,
-    offsetY: 5,
+    offsetY: 4,
   },
-  rockSalt: { name: "Rock Salt", size: 60, offsetX: 0, offsetY: 0 },
+  rockSalt: { name: "Rock Salt", size: 54, offsetX: 0, offsetY: 8 },
   walterTurncoat: {
     name: "Walter Turncoat",
-    size: 72,
+    size: 74,
     offsetX: 0,
     offsetY: 0,
   },

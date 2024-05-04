@@ -1,16 +1,13 @@
 import * as Select from "@radix-ui/react-select";
 import * as Label from "@radix-ui/react-label";
-import { SelectItemProps } from "@radix-ui/react-select";
 import React, { FormEvent, useState } from "react";
+import WebFont from "webfontloader";
 import { FaPencil, FaChevronDown, FaChevronUp, FaCheck } from "react-icons/fa6";
 import { twMerge } from "tailwind-merge";
-import {
-  IMAGE_API_URL,
-  MAX_STRING_LENGTH,
-  fontConfig,
-  imageConfig,
-} from "../config";
+import { FontSlug, TextureOptions } from "../types";
+import { MAX_STRING_LENGTH, fontConfig, imageConfig } from "../config";
 import { fetchNui } from "../utils/fetchNui";
+import { SelectItemProps } from "@radix-ui/react-select";
 
 type ErrorType =
   | "ERROR_NO_TEXT_ENTERED"
@@ -19,7 +16,7 @@ type ErrorType =
 
 interface FormDataProps {
   text: string;
-  font: FontType | "";
+  font: FontSlug | "";
   remainder: number;
   errors: { [key in ErrorType]: boolean };
 }
@@ -59,7 +56,7 @@ export default function Form() {
     });
   }
 
-  function handleSelect(value: FontType | "") {
+  function handleSelect(value: FontSlug | "") {
     let nextErrors = { ...formData.errors, ERROR_NO_FONT_SELECTED: false };
 
     return setFormData((prevState) => {
@@ -94,43 +91,23 @@ export default function Form() {
 
     if (formData.font === "") return;
 
-    const queryArray = [
-      IMAGE_API_URL,
-      `?font=${encodeURIComponent(fontConfig[formData.font].name)}`,
-      `&text=${encodeURIComponent(formData.text)}`,
-      `&font_color=${imageConfig.fontColor}`,
-      `&font_size=${fontConfig[formData.font].size}`,
-      `&width=${imageConfig.width}`,
-      `&height=${imageConfig.height}`,
-      `&offset_x=${imageConfig.offsetX + fontConfig[formData.font].offsetX}`,
-      `&offset_y=${imageConfig.offsetY + fontConfig[formData.font].offsetY}`,
-      `&anchor=${imageConfig.anchor}`,
-    ];
+    const textureConfig = {
+      font: encodeURIComponent(fontConfig[formData.font].name),
+      text: encodeURIComponent(formData.text),
+      fontColor: imageConfig.fontColor,
+      fontSize: fontConfig[formData.font].size,
+      width: imageConfig.width,
+      height: imageConfig.height,
+      offsetX: imageConfig.offsetX + fontConfig[formData.font].offsetX,
+      offsetY: imageConfig.offsetY + fontConfig[formData.font].offsetY,
+      anchor: imageConfig.anchor,
+    };
 
-    const query = queryArray.join("");
+    console.log(fontConfig[formData.font].name, formData.text);
+
     try {
-      const response = await fetch(query, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const blob = await response.blob();
-      const reader = new FileReader();
-
-      function onLoad() {
-        if (reader.result) {
-          fetchNui("sendTexture", reader.result);
-        }
-        reader.removeEventListener("load", onLoad);
-      }
-
-      reader.addEventListener("load", onLoad);
-
-      reader.readAsDataURL(blob);
-
-      return setTimeout(() => {
-        reader.abort();
-      }, 20000);
+      const data = await createTexture(textureConfig);
+      return fetchNui("sendTexture", data);
     } catch (error) {
       console.error(error);
       throw new Error("Fetch request failed...");
@@ -344,3 +321,115 @@ const SelectItem = React.forwardRef<
     </Select.Item>
   );
 });
+
+async function createTexture({
+  font,
+  text,
+  fontColor,
+  fontSize,
+  width,
+  height,
+  offsetX,
+  offsetY,
+  anchor,
+}: TextureOptions) {
+  return new Promise<string>((resolve, reject) => {
+    const canvas = document.createElement("canvas");
+    // canvas.style.width = width + "px";
+    // canvas.style.height = height + "px";
+
+    window.devicePixelRatio = 0.5;
+
+    const retinaWidth = width * window.devicePixelRatio;
+    const retinaHeight = height * window.devicePixelRatio;
+    const retinaFontSize = fontSize * window.devicePixelRatio;
+
+    canvas.width = retinaWidth;
+    canvas.height = retinaHeight;
+
+    const ctx = canvas.getContext("2d");
+
+    const textDisplay = decodeURIComponent(text);
+    const fontDisplayName = decodeURIComponent(font);
+
+    if (!ctx) return;
+
+    WebFont.load({
+      google: {
+        families: [fontDisplayName],
+      },
+      active: () => drawText(retinaFontSize),
+    });
+
+    function drawText(retinaFontSize: number, recursions = 0) {
+      if (!ctx) return;
+
+      if (recursions > 3) ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.font = retinaFontSize + "px " + fontDisplayName;
+      ctx.fillStyle = "#" + fontColor;
+
+      let textAlign: CanvasTextAlign = "start";
+      let textBaseline: CanvasTextBaseline = "middle";
+
+      switch (anchor[0]) {
+        case "r":
+          textAlign = "end";
+          break;
+        case "l":
+          textAlign = "start";
+          break;
+        case "m":
+        default:
+          textAlign = "center";
+          break;
+      }
+
+      switch (anchor[1]) {
+        case "a":
+          textBaseline = "top";
+          break;
+        case "t":
+          textBaseline = "hanging";
+          break;
+        case "b":
+          textBaseline = "ideographic";
+          break;
+        case "d":
+          textBaseline = "bottom";
+          break;
+        case "s":
+          textBaseline = "alphabetic";
+          break;
+        case "m":
+        default:
+          textBaseline = "middle";
+          break;
+      }
+
+      ctx.textAlign = textAlign;
+      ctx.textBaseline = textBaseline;
+
+      const { width: textWidth } = ctx.measureText(textDisplay);
+
+      const ratio = (retinaWidth * 0.78) / textWidth;
+
+      if (ratio < 1) {
+        return drawText(retinaFontSize * ratio, recursions + 1);
+      }
+
+      ctx.fillText(
+        textDisplay,
+        offsetX * window.devicePixelRatio,
+        offsetY * window.devicePixelRatio
+      );
+
+      return resolve(canvas.toDataURL());
+    }
+
+    const timeout: NodeJS.Timeout = setTimeout(() => {
+      reject("Max execution time reached in createTexture");
+      return clearTimeout(timeout);
+    }, 10000);
+  });
+}
