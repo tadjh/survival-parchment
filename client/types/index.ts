@@ -11,4 +11,5 @@ export enum AnimStates {
   NONE,
   WRITING_ON_PARCHMENT,
   PRESENTING_PARCHMENT,
+  OTHER,
 }

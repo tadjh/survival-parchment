@@ -103,11 +103,9 @@ export default function Form() {
       anchor: imageConfig.anchor,
     };
 
-    console.log(fontConfig[formData.font].name, formData.text);
-
     try {
       const data = await createTexture(textureConfig);
-      return fetchNui("sendTexture", data);
+      return fetchNui("returnTexture", data);
     } catch (error) {
       console.error(error);
       throw new Error("Fetch request failed...");
@@ -338,14 +336,17 @@ async function createTexture({
     // canvas.style.width = width + "px";
     // canvas.style.height = height + "px";
 
+    // TODO Could this scalar just be a generic variable
+    // or is setting this defined global meaningful to the
+    // canvas rendering output in some way? Doubtful tbh.
     window.devicePixelRatio = 0.5;
 
-    const retinaWidth = width * window.devicePixelRatio;
-    const retinaHeight = height * window.devicePixelRatio;
-    const retinaFontSize = fontSize * window.devicePixelRatio;
+    const scaledWidth = width * window.devicePixelRatio;
+    const scaledHeight = height * window.devicePixelRatio;
+    const scaledFontSize = fontSize * window.devicePixelRatio;
 
-    canvas.width = retinaWidth;
-    canvas.height = retinaHeight;
+    canvas.width = scaledWidth;
+    canvas.height = scaledHeight;
 
     const ctx = canvas.getContext("2d");
 
@@ -358,7 +359,7 @@ async function createTexture({
       google: {
         families: [fontDisplayName],
       },
-      active: () => drawText(retinaFontSize),
+      active: () => drawText(scaledFontSize),
     });
 
     function drawText(retinaFontSize: number, recursions = 0) {
@@ -412,7 +413,7 @@ async function createTexture({
 
       const { width: textWidth } = ctx.measureText(textDisplay);
 
-      const ratio = (retinaWidth * 0.78) / textWidth;
+      const ratio = (scaledWidth * 0.78) / textWidth;
 
       if (ratio < 1) {
         return drawText(retinaFontSize * ratio, recursions + 1);
@@ -427,9 +428,9 @@ async function createTexture({
       return resolve(canvas.toDataURL());
     }
 
-    const timeout: NodeJS.Timeout = setTimeout(() => {
+    const timeout = setTimeout(() => {
       reject("Max execution time reached in createTexture");
-      return clearTimeout(timeout);
+      clearTimeout(timeout);
     }, 10000);
   });
 }

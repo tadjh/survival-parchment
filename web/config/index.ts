@@ -2,8 +2,6 @@ import { Anchor, FontName, FontSlug } from "../types";
 
 export const MAX_STRING_LENGTH = 70;
 
-export const IMAGE_API_URL = process.env.SP_IMAGE_API_URL || "";
-
 export const imageConfig: {
   width: number;
   height: number;

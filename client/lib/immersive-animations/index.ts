@@ -8,6 +8,6 @@ export function startAnim(options: AnimOptions): Promise<AnimHandles> {
   return globalThis.exports["immersive-animations"].startAnim(options);
 }
 
-export function stopAnim() {
+export function stopAnim(): AnimHandles {
   return globalThis.exports["immersive-animations"].stopAnim();
 }
