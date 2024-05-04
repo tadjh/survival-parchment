@@ -6,3 +6,9 @@ export type NUIMessage = {
   action: "setIsVisible";
   payload: boolean;
 };
+
+export enum AnimStates {
+  NONE,
+  WRITING_ON_PARCHMENT,
+  PRESENTING_PARCHMENT,
+}

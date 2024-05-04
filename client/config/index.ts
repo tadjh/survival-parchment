@@ -9,3 +9,5 @@ export const DEFAULT_TEXTURE_NAME = "parchment_sign_1";
 export const RUNTIME_TEXTURE_DICTIONARY = "runtime_survival";
 export const RUNTIME_TEXTURE_NAME = "parchment_sign_1";
 export const RUNTIME_TEXTURE_DIMENSIONS = 512;
+
+export const MAX_EXECUTION_TIME = 20000;
