@@ -5,7 +5,7 @@ export type Model = string | number;
 export type Vector3 = { x: number; y: number; z: number };
 
 export interface AnimHandles {
-  // animName: string;
+  animName: string;
   propHandle: number;
   propModel: Model;
   particleHandle: number;
