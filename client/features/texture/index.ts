@@ -2,7 +2,7 @@ import {
   RUNTIME_TEXTURE_DICTIONARY,
   RUNTIME_TEXTURE_PREFIX,
   DEFAULT_TEXTURE_DICTIONARY,
-  DEFAULT_TEXTURE_NAME,
+  DEFAULT_TEXTURE_PREFIX,
   MAX_EXECUTION_TIME,
   RUNTIME_TEXTURE_DIMENSIONS,
 } from "../../config";
@@ -12,7 +12,7 @@ let duiObject = 0;
 let duiHandle = "";
 const textureHandles: number[] = [];
 
-export function replaceTextureWithBase64(url: string) {
+export function replaceTextureWithBase64(url: string, queueId: number) {
   if (!dictHandle) {
     dictHandle = CreateRuntimeTxd(RUNTIME_TEXTURE_DICTIONARY);
   }
@@ -39,7 +39,7 @@ export function replaceTextureWithBase64(url: string) {
       ) {
         AddReplaceTexture(
           DEFAULT_TEXTURE_DICTIONARY,
-          DEFAULT_TEXTURE_NAME,
+          `${DEFAULT_TEXTURE_PREFIX}${queueId}`,
           RUNTIME_TEXTURE_DICTIONARY,
           `${RUNTIME_TEXTURE_PREFIX}${nextTextureNumber}`
         );
@@ -56,7 +56,7 @@ export function replaceTextureWithBase64(url: string) {
 }
 
 /* Unused Dui implementation */
-function replaceTextureWithURL(url: string) {
+function replaceTextureWithURL(url: string, queueId: number) {
   if (!dictHandle) {
     dictHandle = CreateRuntimeTxd(RUNTIME_TEXTURE_DICTIONARY);
   }
@@ -75,9 +75,11 @@ function replaceTextureWithURL(url: string) {
     duiHandle = GetDuiHandle(duiObject);
   }
 
+  const nextTextureNumber = textureHandles.length + 1;
+
   const nextTexture = CreateRuntimeTextureFromDuiHandle(
     dictHandle,
-    RUNTIME_TEXTURE_PREFIX,
+    `${RUNTIME_TEXTURE_PREFIX}${nextTextureNumber}`,
     duiHandle
   );
 
@@ -95,9 +97,9 @@ function replaceTextureWithURL(url: string) {
       ) {
         AddReplaceTexture(
           DEFAULT_TEXTURE_DICTIONARY,
-          DEFAULT_TEXTURE_NAME,
+          `${DEFAULT_TEXTURE_PREFIX}${queueId}`,
           RUNTIME_TEXTURE_DICTIONARY,
-          RUNTIME_TEXTURE_PREFIX
+          `${RUNTIME_TEXTURE_PREFIX}${nextTextureNumber}`
         );
 
         resolve(true);
