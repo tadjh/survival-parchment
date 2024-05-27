@@ -55,7 +55,6 @@ export const parchmentEmotes = (
         bone: PedBoneId.SKEL_R_Hand,
         pos: { x: 0.107, y: 0.044, z: -0.011 },
         rot: { x: -120.0, y: 0.0, z: 0.0 },
-        debug: true,
       },
     },
   };
